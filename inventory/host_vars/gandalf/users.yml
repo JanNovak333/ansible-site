@@ -1,0 +1,5 @@
+---
+ansible_users:
+  - name: Aragorn
+    ssh_keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILRM4YP9n9N+AuBmBJyg572wY2LEAx4/vhyDEqtNmRCo honza@DESKTOP-OCNAMFA"
