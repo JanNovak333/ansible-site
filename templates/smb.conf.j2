@@ -1,0 +1,16 @@
+[global]
+    workgroup = {{ samba_workgroup }}
+    server string = {{ samba_server_string }}
+    security = user
+    map to guest = never
+    server role = standalone server
+
+{% for share in samba_shares %}
+[{{ share.name }}]
+    path = {{ share.path }}
+    valid users = {{ share.valid_users }}
+    read only = {{ share.read_only | ternary('yes', 'no') }}
+    browsable = {{ share.browsable | ternary('yes', 'no') }}
+    guest ok = {{ share.guest_ok | ternary('yes', 'no') }}
+
+{% endfor %}

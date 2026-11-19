@@ -1,0 +1,20 @@
+---
+samba_package: samba
+samba_service: smb
+
+samba_user: sambauser
+samba_user_shell: /sbin/nologin
+samba_user_home: /nonexistent
+
+samba_workgroup: WORKGROUP
+samba_server_string: Samba Server on Gandalf
+
+samba_firewall_zone: home
+
+samba_shares:
+  - name: data
+    path: /srv/samba/data
+    valid_users: sambauser
+    read_only: false
+    browsable: true
+    guest_ok: false

@@ -11,3 +11,7 @@
 
 - name: Import users playbook
   ansible.builtin.import_playbook: playbooks/users.yml
+
+
+- name: Import Samba playbook
+  ansible.builtin.import_playbook: playbooks/samba.yml

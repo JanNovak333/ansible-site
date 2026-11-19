@@ -1,0 +1,76 @@
+---
+- name: Configure Samba server on Gandalf
+  hosts: gandalf
+  become: true
+
+  tasks:
+    - name: Install Samba packages
+      ansible.builtin.dnf:
+        name:
+          - samba
+          - samba-common-tools
+          - policycoreutils-python-utils
+          - samba-client
+        state: present
+
+    - name: Create Samba system user
+      ansible.builtin.user:
+        name: "{{ samba_user }}"
+        system: true
+        create_home: false
+        home: "{{ samba_user_home }}"
+        shell: "{{ samba_user_shell }}"
+        state: present
+
+    - name: Create Samba shared directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ samba_user }}"
+        group: "{{ samba_user }}"
+        mode: "2770"
+      loop: "{{ samba_shares }}"
+
+    - name: Configure SELinux context for Samba shares
+      community.general.sefcontext:
+        target: "{{ item.path }}(/.*)?"
+        setype: samba_share_t
+        state: present
+      loop: "{{ samba_shares }}"
+
+    - name: Restore SELinux contexts
+      ansible.builtin.command:
+        cmd: "restorecon -RFv {{ item.path }}"
+      register: restorecon_result
+      changed_when: "'Relabeled' in restorecon_result.stdout"
+      loop: "{{ samba_shares }}"
+
+    - name: Generate Samba configuration
+      ansible.builtin.template:
+        src: ../templates/smb.conf.j2
+        dest: /etc/samba/smb.conf
+        owner: root
+        group: root
+        mode: "0644"
+        validate: "testparm -s %s"
+      notify: Restart Samba
+
+    - name: Enable Samba in firewall
+      ansible.posix.firewalld:
+        service: samba
+        zone: "{{ samba_firewall_zone }}"
+        permanent: true
+        immediate: true
+        state: enabled
+
+    - name: Enable and start Samba service
+      ansible.builtin.service:
+        name: "{{ samba_service }}"
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart Samba
+      ansible.builtin.service:
+        name: "{{ samba_service }}"
+        state: restarted
