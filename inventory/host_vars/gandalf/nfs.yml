@@ -1,0 +1,7 @@
+---
+nfs_export_path: /srv/nfs/data
+nfs_mount_path: /mnt/nfs-bard
+nfs_remote_host: "2001:718:1c01:21:250:56ff:fe8e:607b"
+
+nfs_owner_uid: 1000
+nfs_owner_gid: 1000
